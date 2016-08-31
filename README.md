@@ -1,4 +1,4 @@
-# Rebus.TODO
+# Rebus.StructureMap
 
 Provides a StructureMap container adapter for [Rebus](https://github.com/rebus-org/Rebus).
 

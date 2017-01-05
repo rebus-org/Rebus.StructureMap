@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Rebus.Activation;
 using Rebus.Bus;
+using Rebus.Bus.Advanced;
 using Rebus.Handlers;
 using Rebus.Pipeline;
 using Rebus.Transport;
@@ -22,6 +24,7 @@ namespace Rebus.StructureMap
         /// </summary>
         public StructureMapContainerAdapter(IContainer container)
         {
+            if (container == null) throw new ArgumentNullException(nameof(container));
             _container = container;
         }
 
@@ -48,6 +51,7 @@ namespace Rebus.StructureMap
             _container.Configure(x =>
             {
                 x.For<IBus>().Singleton().Add(bus);
+                x.For<ISyncBus>().Transient().Use(c => c.GetInstance<IBus>().Advanced.SyncBus);
                 x.For<IMessageContext>().Transient().Use(() => MessageContext.Current);
             });
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using Rebus.Handlers;
 using StructureMap.Graph;
 using StructureMap.Graph.Scanning;
@@ -23,7 +24,12 @@ namespace Rebus.StructureMap
 
             foreach (var handlerType in messageHandlers)
             {
+#if NETSTANDARD1_6
+                var handlerInterfaces = handlerType.GetTypeInfo().GetInterfaces().Where(IsHandler).ToList();
+#else
                 var handlerInterfaces = handlerType.GetInterfaces().Where(IsHandler).ToList();
+#endif
+
 
                 foreach (var handlerInterface in handlerInterfaces)
                 {
@@ -37,8 +43,13 @@ namespace Rebus.StructureMap
 
         static bool IsHandler(Type type)
         {
+#if NETSTANDARD1_6
+            return type.GetTypeInfo().IsGenericType
+                   && type.GetGenericTypeDefinition() == typeof(IHandleMessages<>);
+#else
             return type.IsGenericType
                    && type.GetGenericTypeDefinition() == typeof(IHandleMessages<>);
+#endif
         }
     }
 }

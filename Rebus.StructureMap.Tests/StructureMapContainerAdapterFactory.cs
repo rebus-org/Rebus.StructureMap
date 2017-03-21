@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using Rebus.Activation;
 using Rebus.Bus;
 using Rebus.Handlers;
@@ -40,9 +41,15 @@ namespace Rebus.StructureMap.Tests
 
         Type[] GetHandlerInterfaces(Type type)
         {
+#if NETSTANDARD1_6
+            return type.GetTypeInfo().GetInterfaces()
+                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
+                .ToArray();
+#else
             return type.GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
                 .ToArray();
+#endif
         }
     }
 }

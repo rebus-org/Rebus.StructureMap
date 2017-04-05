@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+#if NETSTANDARD1_6
 using System.Reflection;
+#endif
 using Rebus.Activation;
 using Rebus.Bus;
 using Rebus.Handlers;
@@ -24,6 +26,7 @@ namespace Rebus.StructureMap.Tests
             {
                 foreach (var handler in GetHandlerInterfaces(typeof (THandler)))
                 {
+                    Console.WriteLine($"IHandleMessages<{handler.GetGenericArguments().First().Name}> => {typeof(THandler).Name}");
                     c.For(handler).Use(typeof (THandler)).Transient();
                 }
             });

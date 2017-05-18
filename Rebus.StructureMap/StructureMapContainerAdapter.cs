@@ -64,6 +64,11 @@ namespace Rebus.StructureMap
         /// </summary>
         public void SetBus(IBus bus)
         {
+            if (_container.TryGetInstance<IBus>() != null)
+            {
+                throw new InvalidOperationException("Cannot register IBus because one has already been registered. If you want to host multiple Rebus instances in a single process, please do so using separate container instances.");
+            }
+
             _container.Configure(x =>
             {
                 x.For<IBus>().Singleton().Add(bus);

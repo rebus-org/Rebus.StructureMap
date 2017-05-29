@@ -10,7 +10,7 @@ namespace Rebus.StructureMap
         /// <summary>
         /// Uses <see cref="MessageHandlerConvention"/> on the scanner to auto-register found Rebus handlers
         /// </summary>
-        public static void WithMessageHanderConvention(this IAssemblyScanner scanner)
+        public static void WithMessageHandlerConvention(this IAssemblyScanner scanner)
         {
             scanner.With(new MessageHandlerConvention());
         }

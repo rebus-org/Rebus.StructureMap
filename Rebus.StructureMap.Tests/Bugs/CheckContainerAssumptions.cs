@@ -46,11 +46,11 @@ namespace Rebus.StructureMap.Tests.Bugs
             Assert.That(handlers.Length, Is.EqualTo(2));
         }
 
-        class FirstClass : IAmEmptyAndGeneric<ISomeInterface> { }
+        public class FirstClass : IAmEmptyAndGeneric<ISomeInterface> { }
 
-        class SecondClass : IAmEmptyAndGeneric<SomeMessage> { }
+        public class SecondClass : IAmEmptyAndGeneric<SomeMessage> { }
 
-        class ThirdClass : IAmEmptyAndGeneric<ISomeInterface> { }
+        public class ThirdClass : IAmEmptyAndGeneric<ISomeInterface> { }
 
         public interface ISomeInterface { }
 

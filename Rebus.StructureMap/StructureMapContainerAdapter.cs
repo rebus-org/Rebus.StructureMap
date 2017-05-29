@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Rebus.Activation;
 using Rebus.Bus;
 using Rebus.Bus.Advanced;
-using Rebus.Extensions;
 using Rebus.Handlers;
 using Rebus.Pipeline;
 using Rebus.Transport;
@@ -26,8 +24,7 @@ namespace Rebus.StructureMap
         /// </summary>
         public StructureMapContainerAdapter(IContainer container)
         {
-            if (container == null) throw new ArgumentNullException(nameof(container));
-            _container = container;
+            _container = container ?? throw new ArgumentNullException(nameof(container));
         }
 
         /// <summary>
@@ -42,21 +39,7 @@ namespace Rebus.StructureMap
                 return nestedContainer;
             });
 
-            var handledMessageTypes = typeof(TMessage).GetBaseTypes()
-                .Concat(new[] {typeof(TMessage)});
-
-            var instances = handledMessageTypes
-                .SelectMany(handledMessageType =>
-                {
-                    var implementedInterface = typeof(IHandleMessages<>).MakeGenericType(handledMessageType);
-
-                    return container.GetAllInstances(implementedInterface).Cast<IHandleMessages>();
-                })
-                .Cast<IHandleMessages<TMessage>>()
-                .Distinct()
-                .ToList();
-
-            return instances;
+            return container.GetAllInstances<IHandleMessages<TMessage>>();
         }
 
         /// <summary>

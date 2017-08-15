@@ -5,54 +5,85 @@ using System.Reflection;
 #endif
 using Rebus.Activation;
 using Rebus.Bus;
+using Rebus.Config;
 using Rebus.Handlers;
 using Rebus.Tests.Contracts.Activation;
 using StructureMap;
 
 namespace Rebus.StructureMap.Tests
 {
-    public class StructureMapContainerAdapterFactory : IContainerAdapterFactory
+    public class StructureMapContainerAdapterFactory : IActivationContext
     {
-        readonly IContainer _container = new Container();
-
-        public IHandlerActivator GetActivator()
+        public IHandlerActivator CreateActivator(Action<IHandlerRegistry> configureHandlers, out IActivatedContainer container)
         {
-            return new StructureMapContainerAdapter(_container);
+            var sm = new Container();
+
+            configureHandlers.Invoke(new HandlerRegistry(sm));
+
+            container = new ActivatedContainer(sm);
+
+            return new StructureMapContainerAdapter(sm);
         }
 
-        public void RegisterHandlerType<THandler>() where THandler : class, IHandleMessages
+        public IBus CreateBus(Action<IHandlerRegistry> configureHandlers, Func<RebusConfigurer, RebusConfigurer> configureBus, out IActivatedContainer container)
         {
-            _container.Configure(c =>
+            var sm = new Container();
+
+            configureHandlers.Invoke(new HandlerRegistry(sm));
+            container = new ActivatedContainer(sm);
+
+            return configureBus(Configure.With(new StructureMapContainerAdapter(sm))).Start();
+        }
+
+        class ActivatedContainer : IActivatedContainer
+        {
+            readonly Container _container;
+
+            public ActivatedContainer(Container container)
             {
-                foreach (var handler in GetHandlerInterfaces(typeof (THandler)))
+                _container = container;
+            }
+
+            public void Dispose() => _container.Dispose();
+
+            public IBus ResolveBus() => _container.GetInstance<IBus>();
+        }
+
+        class HandlerRegistry : IHandlerRegistry
+        {
+            readonly Container _container;
+
+            public HandlerRegistry(Container container)
+            {
+                _container = container;
+            }
+
+            public IHandlerRegistry Register<THandler>() where THandler : class, IHandleMessages
+            {
+                _container.Configure(c =>
                 {
-                    Console.WriteLine($"IHandleMessages<{handler.GetGenericArguments().First().Name}> => {typeof(THandler).Name}");
-                    c.For(handler).Use(typeof (THandler)).Transient();
-                }
-            });
-        }
+                    foreach (var handler in GetHandlerInterfaces(typeof(THandler)))
+                    {
+                        Console.WriteLine($"IHandleMessages<{handler.GetGenericArguments().First().Name}> => {typeof(THandler).Name}");
+                        c.For(handler).Use(typeof(THandler)).Transient();
+                    }
+                });
 
-        public void CleanUp()
-        {
-            _container.Dispose();
-        }
+                return this;
+            }
 
-        public IBus GetBus()
-        {
-            return _container.GetInstance<IBus>();
-        }
-
-        Type[] GetHandlerInterfaces(Type type)
-        {
+            Type[] GetHandlerInterfaces(Type type)
+            {
 #if NETSTANDARD1_6
             return type.GetTypeInfo().GetInterfaces()
                 .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
                 .ToArray();
 #else
-            return type.GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
-                .ToArray();
+                return type.GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
+                    .ToArray();
 #endif
+            }
         }
     }
 }

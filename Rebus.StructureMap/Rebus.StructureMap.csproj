@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="rebus" Version="4.1.0" />
-    <PackageReference Include="structuremap" Version="4.4.5" />
+    <PackageReference Include="structuremap" Version="4.5.2" />
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="$(ProjectDir)..\scripts\patch_assemblyinfo.cmd $(ProjectDir)" />

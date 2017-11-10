@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NUnit.Framework;
+using Rebus.Extensions;
 using Rebus.Tests.Contracts;
 using StructureMap;
 
@@ -22,13 +24,18 @@ namespace Rebus.StructureMap.Tests.Bugs
         {
             _container.Configure(c =>
             {
-                c.For<IAmEmptyAndGeneric<ISomeInterface>>().Use<FirstClass>().Transient();
-                c.For<IAmEmptyAndGeneric<SomeMessage>>().Use<SecondClass>().Transient();
+                c.For<IAmGeneric<ISomeInterface>>().Use<FirstClass>().Transient();
+                c.For<IAmGeneric<SomeMessage>>().Use<SecondClass>().Transient();
             });
 
-            var handlers = _container.GetAllInstances<IAmEmptyAndGeneric<SomeMessage>>().ToArray();
+            var handlers = _container.GetAllInstances<IAmGeneric<SomeMessage>>().ToArray();
 
-            Assert.That(handlers.Length, Is.EqualTo(2));
+            Assert.That(handlers.Length, Is.EqualTo(2), $@"Did not get the two expected instances - got these:
+
+{string.Join(Environment.NewLine, handlers.Select(h => $"     {h.GetType().GetSimpleAssemblyQualifiedName()}"))}
+
+That was weird.
+");
         }
 
         [Test]
@@ -37,25 +44,25 @@ namespace Rebus.StructureMap.Tests.Bugs
             _container.Configure(c =>
             {
                 // two handler types handling same interface
-                c.For<IAmEmptyAndGeneric<ISomeInterface>>().Use<FirstClass>().Transient();
-                c.For<IAmEmptyAndGeneric<ISomeInterface>>().Use<ThirdClass>().Transient();
+                c.For<IAmGeneric<ISomeInterface>>().Use<FirstClass>().Transient();
+                c.For<IAmGeneric<ISomeInterface>>().Use<ThirdClass>().Transient();
             });
 
-            var handlers = _container.GetAllInstances<IAmEmptyAndGeneric<SomeMessage>>().ToArray();
+            var handlers = _container.GetAllInstances<IAmGeneric<SomeMessage>>().ToArray();
 
             Assert.That(handlers.Length, Is.EqualTo(2));
         }
 
-        public class FirstClass : IAmEmptyAndGeneric<ISomeInterface> { }
+        public class FirstClass : IAmGeneric<ISomeInterface> { }
 
-        public class SecondClass : IAmEmptyAndGeneric<SomeMessage> { }
+        public class SecondClass : IAmGeneric<SomeMessage> { }
 
-        public class ThirdClass : IAmEmptyAndGeneric<ISomeInterface> { }
+        public class ThirdClass : IAmGeneric<ISomeInterface> { }
 
         public interface ISomeInterface { }
 
         public class SomeMessage : ISomeInterface { }
 
-        public interface IAmEmptyAndGeneric<T> { }
+        public interface IAmGeneric<in T> { }
     }
 }

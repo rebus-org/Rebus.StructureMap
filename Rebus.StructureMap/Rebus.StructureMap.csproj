@@ -47,7 +47,7 @@
     <None Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="rebus" Version="4.0.0" />
+    <PackageReference Include="rebus" Version="4.1.0" />
     <PackageReference Include="structuremap" Version="4.4.5" />
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

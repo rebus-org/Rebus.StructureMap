@@ -20,3 +20,7 @@
 
 * Update to Rebus 4
 * Add .NET Core support
+
+## 4.1.0
+
+* Update SM dep to 4.6.1

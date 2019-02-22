@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Rebus.Activation;
 using Rebus.Bus;
@@ -39,7 +40,7 @@ namespace Rebus.StructureMap
                 return nestedContainer;
             });
 
-            return container.GetAllInstances<IHandleMessages<TMessage>>();
+            return container.GetAllInstances<IHandleMessages<TMessage>>().ToArray();
         }
 
         /// <summary>

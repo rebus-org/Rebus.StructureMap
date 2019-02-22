@@ -24,3 +24,8 @@
 ## 4.1.0
 
 * Update SM dep to 4.6.1
+
+## 5.0.0
+
+* Update SM dep to 4.7.0 and Rebus dep to 5.1.0
+* Target .NET 4.5 and .NET Standard 2.0

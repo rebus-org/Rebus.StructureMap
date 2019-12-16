@@ -28,8 +28,8 @@ namespace Rebus.StructureMap.Tests.Bugs
                 c.For<IAmGeneric<SomeMessage>>().Use<SecondClass>().Transient();
             });
 
-            var handlers = _container.GetAllInstances<IAmGeneric<SomeMessage>>().ToArray();
-
+            var handlers = _container.Model.GetAllPossible<IAmGeneric<SomeMessage>>().ToArray();
+            
             Assert.That(handlers.Length, Is.EqualTo(2), $@"Did not get the two expected instances - got these:
 
 {string.Join(Environment.NewLine, handlers.Select(h => $"     {h.GetType().GetSimpleAssemblyQualifiedName()}"))}
@@ -48,7 +48,7 @@ That was weird.
                 c.For<IAmGeneric<ISomeInterface>>().Use<ThirdClass>().Transient();
             });
 
-            var handlers = _container.GetAllInstances<IAmGeneric<SomeMessage>>().ToArray();
+            var handlers = _container.Model.GetAllPossible<IAmGeneric<SomeMessage>>().ToArray();
 
             Assert.That(handlers.Length, Is.EqualTo(2));
         }

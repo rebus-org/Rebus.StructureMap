@@ -25,6 +25,11 @@ namespace Rebus.StructureMap.Tests.Bugs
 
             _bus = Configure.With(new StructureMapContainerAdapter(_container))
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "sm-test"))
+                .Options(o =>
+                {
+                    o.SetMaxParallelism(1);
+                    o.SetNumberOfWorkers(1);
+                })
                 .Start();
         }
 

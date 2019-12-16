@@ -40,7 +40,7 @@ namespace Rebus.StructureMap
                 return nestedContainer;
             });
 
-            return container.GetAllInstances<IHandleMessages<TMessage>>().ToArray();
+            return container.Model.GetAllPossible<IHandleMessages<TMessage>>().ToArray();
         }
 
         /// <summary>
